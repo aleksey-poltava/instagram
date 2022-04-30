@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from 'firebase/firestore';
+import { getDatabase } from "firebase/database";
 
 // import file for seeding database
 import { seedDatabase } from "../seed";
@@ -22,8 +23,16 @@ const firebaseConfig = {
 
 const firebase = initializeApp(firebaseConfig);
 const db = getFirestore(firebase);
+
+// Get a reference to the database service
+const database = getDatabase(app);
+
 const {FieldValue} = db;
 
 // call seed file once
 
-export {firebase, FieldValue};
+//seedDatabase(db); 
+//https://firebase.google.com/codelabs/firebase-web#7
+
+
+export {firebase, FieldValue, db};
