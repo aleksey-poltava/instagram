@@ -1,9 +1,18 @@
+import { lazy, Suspense } from 'react';
+import * as ROUTES from './constants/routes';
+import {BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+const Login = lazy(() => import ('./pages/login'));
+
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-      </header>
-    </div>
+    <Router>
+      <Suspense fallback={<p>Loading ...</p>} >
+      <Routes>
+        <Route path={ROUTES.LOGIN} element={<Login />} />
+      </Routes>
+      </Suspense>
+    </Router>
   );
 }
 
