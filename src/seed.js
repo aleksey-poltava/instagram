@@ -1,6 +1,8 @@
+import { collection, doc, setDoc } from "firebase/firestore"; 
+
 /* eslint-disable no-plusplus */
 // NOTE: replace 'NvPY9M9MzFTARQ6M816YAzDJxZ72' with your Firebase auth user id (can be taken from Firebase)
-export function seedDatabase(firebase) {
+export function seedDatabase(db) {
   const users = [
     {
       userId: 'IOdR5yntzDZ72aO7HgUv78dcAt52',
@@ -41,15 +43,18 @@ export function seedDatabase(firebase) {
   ];
 
   // eslint-disable-next-line prefer-const
+  const usersRef = collection(db, "users");
   for (let k = 0; k < users.length; k++) {
-    firebase().collection('users').add(users[k]);
+    setDoc(doc(usersRef), users[k]);
+
+    //firebase().collection('users').add(users[k]);
   }
 
   // eslint-disable-next-line prefer-const
+  const photosRef = collection(db, "photos");
   for (let i = 1; i <= 5; ++i) {
-    firebase()
-      .collection('photos')
-      .add({
+    setDoc(doc(photosRef), 
+      {
         photoId: i,
         userId: '2',
         imageSrc: `/images/users/raphael/${i}.jpg`,
@@ -68,6 +73,32 @@ export function seedDatabase(firebase) {
         userLatitude: '40.7128°',
         userLongitude: '74.0060°',
         dateCreated: Date.now()
-      });
+      }
+    );
+
+
+
+    // firebase()
+    //   .collection('photos')
+    //   .add({
+    //     photoId: i,
+    //     userId: '2',
+    //     imageSrc: `/images/users/raphael/${i}.jpg`,
+    //     caption: 'Saint George and the Dragon',
+    //     likes: [],
+    //     comments: [
+    //       {
+    //         displayName: 'dali',
+    //         comment: 'Love this place, looks like my animal farm!'
+    //       },
+    //       {
+    //         displayName: 'orwell',
+    //         comment: 'Would you mind if I used this picture?'
+    //       }
+    //     ],
+    //     userLatitude: '40.7128°',
+    //     userLongitude: '74.0060°',
+    //     dateCreated: Date.now()
+    //   });
   }
 }
