@@ -1,9 +1,8 @@
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import FirebaseContext from '../context/firebase';
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import * as ROUTES from '../constants/routes';
-import {doesUserNameExist} from '../services/firebase';
+import {doesUserNameExist, createNewUser} from '../services/firebase';
 
 export default function SignUp() {
     const navigate = useNavigate();
@@ -17,17 +16,31 @@ export default function SignUp() {
     const [error, setError] = useState('');
     const isInvalid = password === '' || emailAddress === '';
 
-    const auth = getAuth();
-
     const handleSignup = async (event) => {
         event.preventDefault();
 
-        const userNameExists = await doesUserNameExist(username);
-        console.log('user exists: ', userNameExists);
-
         try {
-            
+            const userNameExists = await doesUserNameExist(username);
+            if (userNameExists) {
+                setUsername('');
+                setFullName('');
+                setEmailAddress('');
+                setPassword('')
+                setError('Such user name already exists.');
+            } else {
+                const user = await createNewUser(emailAddress, password);
+                console.log('new user: ', user);
+
+                //TODO Create new document with user data
+
+                navigate(ROUTES.DASHBOARD);
+            }
         } catch (error) {
+            setUsername('');
+            setFullName('');
+            setEmailAddress('');
+            setPassword('')
+            setError(error.message);
             console.log(error);
         }
     };
