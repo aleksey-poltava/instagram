@@ -2,7 +2,8 @@ import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import FirebaseContext from '../context/firebase';
 import * as ROUTES from '../constants/routes';
-import {doesUserNameExist, createNewUser} from '../services/firebase';
+import {doesUserNameExist, createNewUser, addUserToDb} from '../services/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 export default function SignUp() {
     const navigate = useNavigate();
@@ -16,30 +17,36 @@ export default function SignUp() {
     const [error, setError] = useState('');
     const isInvalid = password === '' || emailAddress === '';
 
+    const resetInputFields = () => {
+        setUsername('');
+        setFullName('');
+        setEmailAddress('');
+        setPassword('');
+    }
+
     const handleSignup = async (event) => {
         event.preventDefault();
 
         try {
-            const userNameExists = await doesUserNameExist(username);
-            if (userNameExists) {
-                setUsername('');
-                setFullName('');
-                setEmailAddress('');
-                setPassword('')
+            const isUserNameExists = await doesUserNameExist(username);
+            if (isUserNameExists) {
+                resetInputFields();
                 setError('Such user name already exists.');
             } else {
-                const user = await createNewUser(emailAddress, password);
-                console.log('new user: ', user);
+                const userUid = await createNewUser(emailAddress, password);
+                console.log('user Uid: ', userUid);
 
                 //TODO Create new document with user data
-
-                navigate(ROUTES.DASHBOARD);
+                const result = await addUserToDb(emailAddress, fullName, userUid, username);
+                if (result) {
+                    setError('Something went wrong. Try again later.');
+                    resetInputFields();
+                } else {
+                    navigate(ROUTES.DASHBOARD);
+                }
             }
         } catch (error) {
-            setUsername('');
-            setFullName('');
-            setEmailAddress('');
-            setPassword('')
+            resetInputFields();
             setError(error.message);
             console.log(error);
         }
