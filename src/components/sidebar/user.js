@@ -26,6 +26,6 @@ const User = ({userName, fullName}) =>
  export default memo(User);
 
 User.propTypes = {
-    userName: PropTypes.string.isRequired,
-    fullName: PropTypes.string.isRequired
+    userName: PropTypes.string,
+    fullName: PropTypes.string
 }

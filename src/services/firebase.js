@@ -1,7 +1,7 @@
 import {db} from '../lib/firebase';
 import { collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { func } from 'prop-types';
+import { FieldPath } from 'firebase/firestore';
 
 export async function doesUserNameExist(userName) {
     const q = query(collection(db, "users"), where("username", "==", userName));
@@ -33,29 +33,42 @@ export async function getUserNameByUserId(userId) {
         (null);
 }
 
+export async function getUserIdThoseIFollow(userId) {
+    const qWithFollower = query(collection(db, "users"), where("followers", "array-contains", userId));
+    const querySnapshotFollower = await getDocs(qWithFollower);
+    if (!querySnapshotFollower) {
+        return null;
+    }
+
+    const usersFollower = querySnapshotFollower.docs.map((user) => (        
+        user.data().userId
+    ));
+
+    return usersFollower;
+}
+
 export async function getSuggestedProfiles(userId) {
     const qAllrecords = query(collection(db, "users"), where("userId", "!=", userId));
     const querySnapshotAll = await getDocs(qAllrecords);
-    const usersAll = querySnapshotAll.docs.map((user) => ({
+    const usersAll = querySnapshotAll.docs.map((user) => (        
+        user.data().userId
+    ));
+
+    const iFollow = await getUserIdThoseIFollow(userId);
+    const difference = usersAll.filter(x => !iFollow.includes(x));
+
+    console.log('usersAll: ', usersAll);
+    console.log('iFollow: ', iFollow);
+    console.log('userId: ', userId);
+    console.log('difference: ', difference);
+    const qSuggestions = query(collection(db, "users"), where('userId', "in", difference));
+    const querySnapshotSuggetions = await getDocs(qSuggestions);
+    const suggestions = querySnapshotSuggetions.docs.map((user) => ({
         ...user.data(),
         docId: user.id
     }));
 
-    const qWithFollower = query(collection(db, "users"), where("regions", "array-contains", userId));
-    const querySnapshotFollower = await getDocs(qWithFollower);
-    const usersFollower = querySnapshotFollower.docs.map((user) => ({
-        ...user.data(),
-        docId: user.id
-    }));
-
-    usersAll.forEach(a => {
-        usersFollower.forEach(f => {
-            if (a.docId != f.docId) {
-                //add to result array
-            }
-        })
-    })
-
+    return suggestions;
     //Get all records that contains in followers userId
     //Get all records exept userId == userId
     //Return from all records only those that doesn't have in followers userId
