@@ -1,7 +1,6 @@
 import {db} from '../lib/firebase';
 import { collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { FieldPath } from 'firebase/firestore';
 
 export async function doesUserNameExist(userName) {
     const q = query(collection(db, "users"), where("username", "==", userName));
