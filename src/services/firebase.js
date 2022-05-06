@@ -1,5 +1,5 @@
 import {db} from '../lib/firebase';
-import { collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, setDoc, doc, updateDoc, arrayUnion} from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export async function doesUserNameExist(userName) {
@@ -67,11 +67,32 @@ export async function getSuggestedProfiles(userId) {
         docId: user.id
     }));
 
-    return suggestions;
-    //Get all records that contains in followers userId
-    //Get all records exept userId == userId
-    //Return from all records only those that doesn't have in followers userId
+    return suggestions;  
     //https://firebase.google.com/docs/firestore/query-data/queries#array_membership    
+}
+
+export async function followUser(myUserId, followUserId, followUserDocId) {
+    //https://firebase.google.com/docs/firestore/manage-data/add-data#update_elements_in_an_array
+
+    try {
+        const userRef = doc(db, 'users', followUserDocId);
+        const followRes = await updateDoc(userRef, {
+            followers: arrayUnion(myUserId)
+        });
+
+        const usersDocId = (await getUserByUserId(myUserId))?.docId;
+        const myUserRef = doc(db, 'users', usersDocId);
+        const followingRes = await updateDoc(myUserRef, {
+            following: arrayUnion(followUserId)
+        });
+
+        return true;
+
+    } catch (error) {
+        console.log('error in firebase followUser: ', error);
+        return false;
+    }
+
 }
 
 export async function getUserByUserId(userId) {
