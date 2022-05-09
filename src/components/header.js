@@ -25,9 +25,6 @@ export default function Header() {
     }, []);
 
 
-    console.log('user: ', user);
-    console.log('uid: ', userName);
-
     function signOut() {
         const auth = getAuth();
         SignOut(auth).then(() => {

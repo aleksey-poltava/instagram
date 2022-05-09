@@ -1,5 +1,5 @@
 import {db} from '../lib/firebase';
-import { collection, query, where, getDocs, setDoc, doc, updateDoc, arrayUnion} from "firebase/firestore";
+import { collection, query, where, getDocs, setDoc, doc, updateDoc, arrayUnion, arrayRemove} from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export async function doesUserNameExist(userName) {
@@ -138,8 +138,6 @@ export async function getPhotos(userId, following) {
         docId: photo.id
     }));
 
-    console.log('userFollowedPhotos', userFollowedPhotos);
-
     const photosWithUserDetails = await Promise.all(
         userFollowedPhotos.map(async (photo) => {
             let userLikedPhoto = false;
@@ -155,4 +153,41 @@ export async function getPhotos(userId, following) {
     );
 
     return photosWithUserDetails;
+}
+
+export async function updateLikes(docId, userId, isLiked) {
+    try {
+        const userRef = doc(db, 'photos', docId);
+        if (isLiked) {
+            await updateDoc(userRef, {
+                likes: arrayUnion(userId)
+            });
+        }
+        else {
+            await updateDoc(userRef, {
+                likes: arrayRemove(userId)
+            });
+        }
+
+        return true;
+
+    } catch (error) {
+        console.log('error in firebase updateLikes: ', error);
+        return false;
+    }
+}
+
+export async function updateComments(docId, displayName, comment) {
+    try {
+        const userRef = doc(db, 'photos', docId);
+        await updateDoc(userRef, {
+            comments: arrayUnion({displayName, comment})
+        });
+
+        return true;
+
+    } catch (error) {
+        console.log('error in firebase updateComments: ', error);
+        return false;
+    }
 }
