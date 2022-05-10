@@ -21,6 +21,26 @@ export async function createNewUser(email, password) {
     }
 }
 
+export async function getUserByUsername(username) {
+    const q = query(collection(db, "users"), where("username", "==", username));
+
+    const querySnapshot = await getDocs(q);
+
+    const users = querySnapshot.docs.map((user) => ({...user.data(), docId: user.id}));
+    return users.length > 0 ?
+        (users[0]) :
+        (null);
+}
+
+export async function getUserPhotosByUserId(userId) {
+    const q = query(collection(db, "photos"), where("userId", "==", userId));
+
+    const querySnapshot = await getDocs(q);
+    const photos = querySnapshot.docs.map((photo) => ({...photo.data(), docId: photo.id}));
+
+    return photos;
+}
+
 export async function getUserNameByUserId(userId) {
     const q = query(collection(db, "users"), where("userId", "==", userId));
 
