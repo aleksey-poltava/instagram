@@ -10,7 +10,6 @@ function Profile() {
     //Destructure username from ROUTES.PROFILE --> /p/:username
     const {username} = useParams();
     const [user, setUser] = useState(null);
-    const [userExists, setUserExists] = useState(false);
 
     const navigate = useNavigate();
 
@@ -18,7 +17,6 @@ function Profile() {
         async function checkUserExists() {
             const user = await getUserByUsername(username);
             if (user) {
-                setUserExists(true);
                 setUser(user);
             } else {
                 navigate(ROUTES.NOT_FOUND);
@@ -26,10 +24,10 @@ function Profile() {
         }
     
         checkUserExists();
-    }, [userExists, username, navigate]);
+    }, [username, navigate]);
     
     
-  return userExists ? (
+  return user ? (
     <div className='bg-gray-background'>
         <Header />
         <div className='mx-auto max-w-screen-lg'>

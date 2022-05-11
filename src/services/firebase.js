@@ -112,7 +112,29 @@ export async function followUser(myUserId, followUserId, followUserDocId) {
         console.log('error in firebase followUser: ', error);
         return false;
     }
+}
 
+export async function unFollowUser(myUserId, followUserId, followUserDocId) {
+    //https://firebase.google.com/docs/firestore/manage-data/add-data#update_elements_in_an_array
+
+    try {
+        const userRef = doc(db, 'users', followUserDocId);
+        const followRes = await updateDoc(userRef, {
+            followers: arrayRemove(myUserId)
+        });
+
+        const usersDocId = (await getUserByUserId(myUserId))?.docId;
+        const myUserRef = doc(db, 'users', usersDocId);
+        const followingRes = await updateDoc(myUserRef, {
+            following: arrayRemove(followUserId)
+        });
+
+        return true;
+
+    } catch (error) {
+        console.log('error in firebase unFollowUser: ', error);
+        return false;
+    }
 }
 
 export async function getUserByUserId(userId) {
@@ -208,6 +230,25 @@ export async function updateComments(docId, displayName, comment) {
 
     } catch (error) {
         console.log('error in firebase updateComments: ', error);
+        return false;
+    }
+}
+
+export async function isUserFollowingProfile(loggedInUserUsername, profileUserId) {
+    const q = query(collection(db, "users"),
+                        where("username", "==", loggedInUserUsername),
+                        where("following", "array-contains", profileUserId));
+
+    const querySnapshot = await getDocs(q);
+
+    const response = querySnapshot.docs.map((item) => ({
+        ...item.data(),
+        docId: item.id
+    }));
+    
+    if (response && response.length > 0) {
+        return true;
+    } else {
         return false;
     }
 }
