@@ -21,7 +21,6 @@ function App() {
         <Suspense fallback={<p>Loading ...</p>} >
         <Routes>
           <Route element={<IsUserLoggedIn user={user} loggedInPath={ROUTES.DASHBOARD} />} >
-            {/* <Route path={ROUTES.LOGIN} element={<Login />} /> */}
             <Route path={ROUTES.LOGIN} element={<Login />} />
           </Route>
           <Route path={ROUTES.SIGN_UP} element={<SignUp />} />

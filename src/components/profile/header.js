@@ -83,7 +83,7 @@ function Header({
                   {followerCount === 1 ? `follower` : `followers`}
                 </p>
                 <p className='mr-10'>
-                  <span className='font-bold'>{following.length}</span>
+                  <span className='font-bold'>{following.length}</span> following
                 </p>
               </>
             )}

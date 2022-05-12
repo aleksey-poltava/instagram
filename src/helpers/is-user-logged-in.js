@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 function IsUserLoggedIn({user, loggedInPath, children}) {
     if (!user) {
-        return <Navigate to={children} replace />;
+        //return <Navigate to={children} replace />;        
+        return children ? children : <Outlet />;
     }
 
     if (user) {
